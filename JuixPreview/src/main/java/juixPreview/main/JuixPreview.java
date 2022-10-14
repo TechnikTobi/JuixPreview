@@ -2,7 +2,7 @@ package juixPreview.main;
 
 import juixPreview.gui.JPWindow;
 
-public class Main
+public class JuixPreview
 {
 
     public static void main(String[] args)

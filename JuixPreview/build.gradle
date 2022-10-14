@@ -1,5 +1,13 @@
 plugins {
+    id 'application'
     id 'java'
+    id 'java-library'
+}
+
+java {
+    toolchain {
+        implementation = JvmImplementation.VENDOR_SPECIFIC
+    }
 }
 
 group 'com.tp'
@@ -16,4 +24,16 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'juixPreview.main.JuixPreview'
+        )
+    }
+}
+
+application {
+    mainClass = 'juixPreview.main.JuixPreview'
 }
