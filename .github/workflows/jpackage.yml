@@ -19,6 +19,7 @@ jobs:
       AppVersion: 1.0.0
       CopyrightString: Tobias Prisching
       ProjectDirectory: JuixPreview
+      MainClass: juixPreview.main.JuixPreview
 
     steps:
 
@@ -47,7 +48,7 @@ jobs:
             --input build/libs/ \
             --dest ${{ matrix.os }}-release \
             --main-jar main.jar \
-            --main-class main.Main \
+            --main-class ${{ env.MainClass }} \
             --name ${{ env.NativeImageOutput }} \
             --copyright "${{ env.CopyrightString }}" \
             --type app-image \
@@ -72,7 +73,7 @@ jobs:
            --input . ^
            --dest ./${{ matrix.os }}-release ^
            --main-jar build/libs/*.jar ^
-           --main-class main.Main ^
+           --main-class ${{ env.MainClass }} ^
            --name ${{ env.NativeImageOutput }} ^
            --copyright "${{ env.CopyrightString }}" ^
            --verbose
@@ -88,7 +89,7 @@ jobs:
             --input . \
             --dest ${{ matrix.os }}-release \
             --main-jar $(find build -name *.jar) \
-            --main-class main.Main \
+            --main-class ${{ env.MainClass }} \
             --name ${{ env.NativeImageOutput }} \
             --copyright "${{ env.CopyrightString }}" \
             --verbose
