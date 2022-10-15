@@ -40,7 +40,9 @@ public class JuixWindow implements IWindow, IObserver {
         this.frame.setJMenuBar((JMenuBar) this.menuBar.getJComponent());
 
         this.imageView = new JuixImageView(this);
-        this.frame.add(this.imageView, BorderLayout.CENTER);
+
+        JScrollPane imageViewScroll = new JScrollPane(this.imageView);
+        this.frame.setContentPane(imageViewScroll);
 
         this.fileManager.registerObserver(this);
         this.fileManager.registerObserver(this.imageView);
@@ -65,6 +67,11 @@ public class JuixWindow implements IWindow, IObserver {
     public FileManager getFileManager()
     {
         return this.fileManager;
+    }
+
+    public JuixImageView getImageView()
+    {
+        return this.imageView;
     }
 
 

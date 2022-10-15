@@ -9,5 +9,6 @@ public interface IWindow {
     public JFrame getFrame();
     public WindowManager getParent();
     public FileManager getFileManager();
+    public JuixImageView getImageView();
 
 }
