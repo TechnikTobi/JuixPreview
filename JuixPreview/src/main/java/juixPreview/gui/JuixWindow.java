@@ -42,6 +42,8 @@ public class JuixWindow implements IWindow, IObserver {
         this.imageView = new JuixImageView(this);
 
         JScrollPane imageViewScroll = new JScrollPane(this.imageView);
+        imageViewScroll.setBackground(new Color(0, 0, 0));
+
         this.frame.setContentPane(imageViewScroll);
 
         this.fileManager.registerObserver(this);
