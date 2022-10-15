@@ -7,6 +7,7 @@ import juixPreview.observer.ISubject;
 import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileManager implements ISubject {
@@ -30,7 +31,7 @@ public class FileManager implements ISubject {
         this.setFiles(
             Stream.of(
                     file.isDirectory() ? file.listFiles() : file.getParentFile().listFiles()
-            ).toList()
+            ).collect(Collectors.toList())
         );
     }
 
@@ -69,7 +70,7 @@ public class FileManager implements ISubject {
                     }
                 }
             )
-            .toList();
+            .collect(Collectors.toList());
 
         System.out.println("Found files:");
         for (FileController controller: this.controllers)
