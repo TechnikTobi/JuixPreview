@@ -43,6 +43,8 @@ public class JuixWindow implements IWindow, IObserver {
 
         JScrollPane imageViewScroll = new JScrollPane(this.imageView);
         imageViewScroll.setBackground(new Color(0, 0, 0));
+        imageViewScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        imageViewScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.frame.setContentPane(imageViewScroll);
 

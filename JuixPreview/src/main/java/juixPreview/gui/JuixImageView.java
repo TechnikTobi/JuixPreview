@@ -13,17 +13,23 @@ import java.nio.Buffer;
 
 public class JuixImageView extends JPanel implements IWindowComponent, IObserver {
 
+    private enum EFitMode {
+        withResize,
+        withScroll
+    }
+
     private IWindow parent;
     private BufferedImage currentImage;
-    private Dimension currentSize;
-    private double zoomFactor;
+    private int zoomFactor;
+    private EFitMode mode;
+    private boolean hasDrawn;
 
     public JuixImageView(IWindow parent)
     {
         // super(new GridBagLayout());
         this.parent = parent;
-        this.zoomFactor = 1.0;
-        this.currentSize = new Dimension(0, 0);
+        this.zoomFactor = 1;
+        this.hasDrawn = false;
 
         this.setBackground(new Color(0, 0, 0));
         this.setLocation(0, 0);
@@ -32,7 +38,7 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
     public void zoomIn() {
         if (this.zoomFactor < 8)
         {
-            this.zoomFactor = Math.round(this.zoomFactor * 2.0);
+            this.zoomFactor = (int) Math.round(this.zoomFactor * 2.0);
         }
         this.repaint();
     }
@@ -40,8 +46,9 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
     public void zoomOut() {
         if (this.zoomFactor > 1)
         {
-            this.zoomFactor = Math.round(this.zoomFactor / 2.0);
+            this.zoomFactor = (int) Math.round(this.zoomFactor / 2.0);
         }
+
         this.repaint();
     }
 
@@ -52,8 +59,9 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
 
         try {
             this.currentImage = ImageIO.read(this.parent.getFileManager().current().getFile());
-            this.currentSize = new Dimension(this.currentImage.getWidth(), this.currentImage.getHeight());
-            this.zoomFactor = 1.0;
+            this.mode = EFitMode.withResize;
+            this.zoomFactor = 1;
+            this.hasDrawn = false;
             this.repaint();
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,8 +74,10 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
 
         if (this.currentImage == null) return;
 
+        this.mode = this.zoomFactor == 1 ? EFitMode.withResize : EFitMode.withScroll;
+
         BufferedImage resizedImage = this.getResizedImageToFit();
-        this.currentSize = new Dimension(resizedImage.getWidth(), resizedImage.getHeight());
+
 
         g.drawImage(
                 resizedImage,
@@ -81,39 +91,59 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
             // this.setSize(new Dimension(resizedImage.getWidth(), resizedImage.getHeight())); // this.setSize(this.currentSize);
         }
 
+        this.hasDrawn = true;
+
     }
 
     private BufferedImage getResizedImageToFit()
     {
-        int imageWidth = this.currentImage.getWidth();
-        int imageHeight = this.currentImage.getHeight();
-        double imageAspectRatio = (double) imageWidth / (double) imageHeight;
+        int resizeWidth = 0;
+        int resizeHeight = 0;
 
-        int panelWidth = this.getWidth();
-        int panelHeight = this.getHeight();
-        double panelAspectRatio = (double) panelWidth / (double) panelHeight;
-
-        int resizeWidth = this.getWidth();
-        int resizeHeight = this.getHeight();
-
-        if (panelAspectRatio > imageAspectRatio)
+        if (this.mode == EFitMode.withResize)
         {
-            // Panel is too wide for image
-            resizeWidth = (int) (imageAspectRatio * panelHeight);
+            int imageWidth = this.currentImage.getWidth();
+            int imageHeight = this.currentImage.getHeight();
+            double imageAspectRatio = (double) imageWidth / (double) imageHeight;
+
+            int panelWidth = this.parent.getFrame().getWidth();
+            int panelHeight = this.parent.getFrame().getHeight();
+
+            System.out.println("Panel:");
+            System.out.println(panelWidth);
+            System.out.println(panelHeight);
+
+            double panelAspectRatio = (double) panelWidth / (double) panelHeight;
+
+
+
+            if (panelAspectRatio > imageAspectRatio)
+            {
+                // Panel is too wide for image
+                resizeWidth = (int) (imageAspectRatio * panelHeight);
+                resizeHeight = panelHeight;
+            }
+            else
+            {
+                // Panel is too narrow for image
+                resizeWidth = panelWidth;
+                resizeHeight = (int) (1/imageAspectRatio * panelWidth);
+            }
         }
         else
         {
-            // Panel is too narrow for image
-            resizeHeight = (int) (1/imageAspectRatio * panelWidth);
+            resizeWidth = (int) (this.currentImage.getWidth() * this.zoomFactor);
+            resizeHeight = (int) (this.currentImage.getHeight() * this.zoomFactor);
         }
 
-        resizeWidth *= this.zoomFactor;
-        resizeHeight *= this.zoomFactor;
+        System.out.println("Resize!");
+        System.out.println(resizeWidth);
+        System.out.println(resizeHeight);
 
         Image temporaryImage = this.currentImage.getScaledInstance(
                 resizeWidth,
                 resizeHeight,
-                Image.SCALE_SMOOTH // Image.SCALE_FAST // Image.SCALE_SMOOTH
+                Image.SCALE_FAST // Image.SCALE_SMOOTH
         );
 
         BufferedImage returnValue = new BufferedImage(resizeWidth, resizeHeight, BufferedImage.TYPE_INT_ARGB);
@@ -123,20 +153,28 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         graphics2D2d.dispose();
 
         return returnValue;
+
     }
 
     @Override
     public Dimension getPreferredSize() {
-        if (this.currentImage != null)
+        if (this.hasDrawn)
         {
-            return new Dimension(
-                    (int) (zoomFactor * this.currentImage.getWidth()),
-                    (int) (zoomFactor * this.currentImage.getHeight())
-            );
+            if (this.mode == EFitMode.withScroll)
+            {
+                return new Dimension(
+                        (int) (zoomFactor * this.currentImage.getWidth()),
+                        (int) (zoomFactor * this.currentImage.getHeight())
+                );
+            }
+            else
+            {
+                return this.parent.getFrame().getSize();
+            }
         }
         else
         {
-            return new Dimension(0, 0);
+            return new Dimension(400, 400);
         }
     }
 }
