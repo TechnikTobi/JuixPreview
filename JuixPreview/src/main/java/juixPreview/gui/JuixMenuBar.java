@@ -11,38 +11,68 @@ public class JuixMenuBar {
     private IWindow window;
     private JMenuBar menuBar;
 
-    public JuixMenuBar(IWindow window)
-    {
+    public JuixMenuBar(IWindow window) {
         this.window = window;
         this.menuBar = new JMenuBar();
 
+        // File section
         JMenu file = new JMenu("File");
-        JMenuItem file_open = new JMenuItem("Open...");
-        file_open.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser file_chooser = new JFileChooser();
+        {
+            JMenuItem file_open = new JMenuItem("Open...");
+            file_open.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JFileChooser file_chooser = new JFileChooser();
 
-                file_chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-                file_chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                file_chooser.setMultiSelectionEnabled(true);
+                    file_chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+                    file_chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                    file_chooser.setMultiSelectionEnabled(true);
 
-                int result = file_chooser.showOpenDialog(window.getFrame());
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = file_chooser.getSelectedFile();
-                    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+                    int result = file_chooser.showOpenDialog(window.getFrame());
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = file_chooser.getSelectedFile();
+                        window.getParent().createWindow(selectedFile);
+                        System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+                    }
                 }
-            }
-        });
+            });
 
-        file_open.setAccelerator(KeyStroke.getKeyStroke(
-            'O',
-            Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
-        ));
-        file.add(file_open);
+            file_open.setAccelerator(KeyStroke.getKeyStroke('O',
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
+            ));
 
+            JMenuItem file_previous = new JMenuItem("Previous");
+            JMenuItem file_next = new JMenuItem("Next");
+            file_previous.setAccelerator(KeyStroke.getKeyStroke("LEFT"));
+            file_next.setAccelerator(KeyStroke.getKeyStroke("RIGHT"));
+
+            file_previous.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println(window.getFileManager().previousFile().getFile().getAbsolutePath());
+                    file_previous.setEnabled(window.getFileManager().hasPrevious());
+                    file_next.setEnabled(window.getFileManager().hasNext());
+                }
+            });
+            file_next.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println(window.getFileManager().nextFile().getFile().getAbsolutePath());
+                    file_previous.setEnabled(window.getFileManager().hasPrevious());
+                    file_next.setEnabled(window.getFileManager().hasNext());
+                }
+            });
+
+            file.add(file_open);
+            file.add(new JSeparator());
+            file.add(file_previous);
+            file.add(file_next);
+        }
+
+        // Edit section
         JMenu edit = new JMenu("Edit");
 
+        // Adding all sections to the menu bar
         this.menuBar.add(file);
         this.menuBar.add(edit);
     }
