@@ -19,6 +19,9 @@ public class JuixMenuBar {
         JMenu file = new JMenu("File");
         {
             JMenuItem file_open = new JMenuItem("Open...");
+            JMenuItem file_previous = new JMenuItem("Previous");
+            JMenuItem file_next = new JMenuItem("Next");
+
             file_open.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -32,19 +35,9 @@ public class JuixMenuBar {
                     if (result == JFileChooser.APPROVE_OPTION) {
                         File selectedFile = file_chooser.getSelectedFile();
                         window.getParent().createWindow(selectedFile);
-                        System.out.println("Selected file: " + selectedFile.getAbsolutePath());
                     }
                 }
             });
-
-            file_open.setAccelerator(KeyStroke.getKeyStroke('O',
-                Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
-            ));
-
-            JMenuItem file_previous = new JMenuItem("Previous");
-            JMenuItem file_next = new JMenuItem("Next");
-            file_previous.setAccelerator(KeyStroke.getKeyStroke("LEFT"));
-            file_next.setAccelerator(KeyStroke.getKeyStroke("RIGHT"));
 
             file_previous.addActionListener(new ActionListener() {
                 @Override
@@ -63,6 +56,13 @@ public class JuixMenuBar {
                 }
             });
 
+            file_open.setAccelerator(KeyStroke.getKeyStroke('O',
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
+            ));
+
+            file_previous.setAccelerator(KeyStroke.getKeyStroke("LEFT"));
+            file_next.setAccelerator(KeyStroke.getKeyStroke("RIGHT"));
+
             file.add(file_open);
             file.add(new JSeparator());
             file.add(file_previous);
@@ -71,6 +71,36 @@ public class JuixMenuBar {
 
         // Edit section
         JMenu edit = new JMenu("Edit");
+
+
+        // View section
+        JMenu view = new JMenu("View");
+        {
+            JMenuItem view_zoom_in = new JMenuItem("Zoom in");
+            JMenuItem view_zoom_out = new JMenuItem("Zoom out");
+
+            view_zoom_in.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                }
+            });
+
+            view_zoom_out.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                }
+            });
+
+            view_zoom_in.setAccelerator(KeyStroke.getKeyStroke('+',
+                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
+            ));
+            view_zoom_out.setAccelerator(KeyStroke.getKeyStroke('-',
+                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
+            ));
+
+        }
 
         // Adding all sections to the menu bar
         this.menuBar.add(file);
