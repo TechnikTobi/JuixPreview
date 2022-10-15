@@ -15,14 +15,34 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
 
     private IWindow parent;
     private BufferedImage currentImage;
+    private Dimension currentSize;
+    private double zoomFactor;
 
     public JuixImageView(IWindow parent)
     {
+        // super(new GridBagLayout());
         this.parent = parent;
+        this.zoomFactor = 1.0;
+        this.currentSize = new Dimension(0, 0);
 
         this.setBackground(new Color(0, 0, 0));
         this.setLocation(0, 0);
-        this.setLayout(new BorderLayout());
+    }
+
+    public void zoomIn() {
+        if (this.zoomFactor < 8)
+        {
+            this.zoomFactor = Math.round(this.zoomFactor * 2.0);
+        }
+        this.repaint();
+    }
+
+    public void zoomOut() {
+        if (this.zoomFactor > 1)
+        {
+            this.zoomFactor = Math.round(this.zoomFactor / 2.0);
+        }
+        this.repaint();
     }
 
 
@@ -32,6 +52,8 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
 
         try {
             this.currentImage = ImageIO.read(this.parent.getFileManager().current().getFile());
+            this.currentSize = new Dimension(this.currentImage.getWidth(), this.currentImage.getHeight());
+            this.zoomFactor = 1.0;
             this.repaint();
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,13 +67,20 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         if (this.currentImage == null) return;
 
         BufferedImage resizedImage = this.getResizedImageToFit();
+        this.currentSize = new Dimension(resizedImage.getWidth(), resizedImage.getHeight());
 
         g.drawImage(
                 resizedImage,
-                (this.getWidth() - resizedImage.getWidth())/2,
-                (this.getHeight() - resizedImage.getHeight())/2,
+                Math.max(0, (this.getWidth() - resizedImage.getWidth())/2),
+                Math.max(0, (this.getHeight() - resizedImage.getHeight())/2),
                 this
         );
+
+
+        if (this.getWidth() < resizedImage.getWidth() || this.getHeight() < resizedImage.getHeight()) {
+            // this.setSize(new Dimension(resizedImage.getWidth(), resizedImage.getHeight())); // this.setSize(this.currentSize);
+        }
+
     }
 
     private BufferedImage getResizedImageToFit()
@@ -78,7 +107,14 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
             resizeHeight = (int) (1/imageAspectRatio * panelWidth);
         }
 
-        Image temporaryImage = this.currentImage.getScaledInstance(resizeWidth, resizeHeight, Image.SCALE_SMOOTH);
+        resizeWidth *= this.zoomFactor;
+        resizeHeight *= this.zoomFactor;
+
+        Image temporaryImage = this.currentImage.getScaledInstance(
+                resizeWidth,
+                resizeHeight,
+                Image.SCALE_SMOOTH // Image.SCALE_FAST // Image.SCALE_SMOOTH
+        );
 
         BufferedImage returnValue = new BufferedImage(resizeWidth, resizeHeight, BufferedImage.TYPE_INT_ARGB);
 
@@ -87,5 +123,20 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         graphics2D2d.dispose();
 
         return returnValue;
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        if (this.currentImage != null)
+        {
+            return new Dimension(
+                    (int) (zoomFactor * this.currentImage.getWidth()),
+                    (int) (zoomFactor * this.currentImage.getHeight())
+            );
+        }
+        else
+        {
+            return new Dimension(0, 0);
+        }
     }
 }
