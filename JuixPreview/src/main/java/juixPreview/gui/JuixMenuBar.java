@@ -82,29 +82,34 @@ public class JuixMenuBar {
             view_zoom_in.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    window.getImageView().zoomIn();
                 }
             });
 
             view_zoom_out.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    window.getImageView().zoomOut();
                 }
             });
 
-            view_zoom_in.setAccelerator(KeyStroke.getKeyStroke('+',
-                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
-            ));
-            view_zoom_out.setAccelerator(KeyStroke.getKeyStroke('-',
+
+            view_zoom_in.setAccelerator(KeyStroke.getKeyStroke(521, // '+'
                     Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
             ));
 
+            view_zoom_out.setAccelerator(KeyStroke.getKeyStroke(45, // '-'
+                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()
+            ));
+
+            view.add(view_zoom_in);
+            view.add(view_zoom_out);
         }
 
         // Adding all sections to the menu bar
         this.menuBar.add(file);
         this.menuBar.add(edit);
+        this.menuBar.add(view);
     }
 
     public JComponent getJComponent() {
