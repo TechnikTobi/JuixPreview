@@ -1,6 +1,10 @@
 package juixPreview.gui;
 
+import juixPreview.file.FileManager;
 import juixPreview.main.JuixPreview;
+import juixPreview.observer.IMessage;
+import juixPreview.observer.IObserver;
+import juixPreview.observer.ISubject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,44 +13,42 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JuixWindow implements IWindow {
+public class JuixWindow implements IWindow, IObserver {
 
     private WindowManager parent;
     private List<IWindowComponent> components;
+    private FileManager fileManager;
 
     private JFrame frame;
     private JuixMenuBar menuBar;
 
+    private JuixImageView imageView;
+
     public JuixWindow(
             WindowManager parent,
-            String title
+            FileManager fileManager
     )
     {
         this.parent = parent;
         this.components = new ArrayList<>();
+        this.fileManager = fileManager;
+
+        this.frame = new JFrame();
+        this.frame.setLayout(new BorderLayout());
 
         this.menuBar = new JuixMenuBar(this);
-
-        /*
-        this.menuBar = new JMenuBar();
-        JMenu menu = new JMenu("File");
-        JMenuItem open_item = new JMenuItem("Open...");
-        open_item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JuixPreview.test();
-            }
-        });
-        menu.add(open_item);
-        this.menuBar.add(menu);
-
-         */
-
-        this.frame = new JFrame(title);
-        this.frame.setSize(400, 400);
-        this.frame.setLayout(null);
-        this.frame.setVisible(true);
         this.frame.setJMenuBar((JMenuBar) this.menuBar.getJComponent());
+
+        this.imageView = new JuixImageView(this);
+        this.frame.add(this.imageView, BorderLayout.CENTER);
+
+        this.fileManager.registerObserver(this);
+        this.fileManager.registerObserver(this.imageView);
+        this.fileManager.notifyObservers(null);
+
+        this.frame.setMinimumSize(new Dimension(400, 400));
+        this.frame.pack();
+        this.frame.setVisible(true);
 
     }
 
@@ -60,11 +62,18 @@ public class JuixWindow implements IWindow {
         return this.parent;
     }
 
-
-    @Override
-    public void addComponent(IWindowComponent component) {
-        this.components.add(component);
+    public FileManager getFileManager()
+    {
+        return this.fileManager;
     }
 
+
+    @Override
+    public void update(IMessage message) {
+        this.frame.setTitle(
+            this.fileManager.current() != null ?
+                    this.fileManager.current().getFile().getName() : JuixPreview.APPLICATION_STRING
+        );
+    }
 
 }

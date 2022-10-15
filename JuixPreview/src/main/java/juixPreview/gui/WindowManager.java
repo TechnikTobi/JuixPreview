@@ -31,8 +31,7 @@ public class WindowManager
     {
         this.addWindow(new JuixWindow(
                 this,
-                new FileManager(file),
-                JuixPreview.APPLICATION_STRING
+                new FileManager(file)
         ));
         this.clearWindows();
     }
@@ -49,13 +48,4 @@ public class WindowManager
             this.windows.remove(illegalWindow);
         }
     }
-
-    public void printActiveStatus()
-    {
-        System.out.println("Status:");
-        this.windows.stream().forEach(w -> System.out.println(w.getFrame().getTitle() + String.valueOf(w.getFrame().isActive())));
-    }
-
-
-
 }
