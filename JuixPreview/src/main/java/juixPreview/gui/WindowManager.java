@@ -45,6 +45,7 @@ public class WindowManager
             {
                 break;
             }
+            illegalWindow.getFrame().dispose();
             this.windows.remove(illegalWindow);
         }
     }
