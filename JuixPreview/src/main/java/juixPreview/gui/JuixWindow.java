@@ -34,19 +34,23 @@ public class JuixWindow implements IWindow, IObserver {
         this.fileManager = fileManager;
 
         this.frame = new JFrame();
-        this.frame.setLayout(new BorderLayout());
+        // this.frame.setLayout(new BorderLayout());
 
         this.menuBar = new JuixMenuBar(this);
         this.frame.setJMenuBar((JMenuBar) this.menuBar.getJComponent());
 
         this.imageView = new JuixImageView(this);
 
+        /*
         JScrollPane imageViewScroll = new JScrollPane(this.imageView);
         imageViewScroll.setBackground(new Color(0, 0, 0));
         imageViewScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         imageViewScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.frame.setContentPane(imageViewScroll);
+         */
+        this.frame.add(this.imageView);
+        this.frame.setContentPane(this.imageView);
 
         this.fileManager.registerObserver(this);
         this.fileManager.registerObserver(this.imageView);

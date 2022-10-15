@@ -7,6 +7,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.Buffer;
@@ -24,6 +26,9 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
     private EFitMode mode;
     private boolean hasDrawn;
 
+    private JLabel imageViewLabel;
+    private JScrollPane imageViewScrollPane;
+
     public JuixImageView(IWindow parent)
     {
         // super(new GridBagLayout());
@@ -32,7 +37,59 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         this.hasDrawn = false;
 
         this.setBackground(new Color(0, 0, 0));
-        this.setLocation(0, 0);
+        this.setLayout(new BorderLayout());
+        this.imageViewLabel = new JLabel((ImageIcon) null, JLabel.CENTER);
+        this.imageViewLabel.setBackground(new Color(0, 0, 0));
+        this.imageViewLabel.setOpaque(true);
+        this.imageViewLabel.setAutoscrolls(true);;
+
+
+        imageViewScrollPane = new JScrollPane(this.imageViewLabel);
+
+
+
+
+        imageViewScrollPane.setBackground(new Color(0, 0, 0));
+        this.add(imageViewScrollPane);
+
+
+
+
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+
+            private Point origin;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                origin = new Point(e.getPoint());
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (origin != null) {
+                    JViewport viewPort = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, imageViewLabel);
+                    if (viewPort != null) {
+                        int deltaX = origin.x - e.getX();
+                        int deltaY = origin.y - e.getY();
+
+                        Rectangle view = viewPort.getViewRect();
+                        view.x += deltaX;
+                        view.y += deltaY;
+
+                        imageViewLabel.scrollRectToVisible(view);
+                    }
+                }
+            }
+        };
+
+        this.imageViewLabel.addMouseListener(mouseAdapter);
+        this.imageViewLabel.addMouseMotionListener(mouseAdapter);
+
+        // this.setLocation(0, 0);
     }
 
     public void zoomIn() {
@@ -53,12 +110,17 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
     }
 
 
+
+
+
+
     @Override
     public void update(IMessage message) {
         if (this.parent.getFileManager().current() == null) return;
 
         try {
             this.currentImage = ImageIO.read(this.parent.getFileManager().current().getFile());
+            this.imageViewLabel.setIcon(new ImageIcon(this.currentImage));
             this.mode = EFitMode.withResize;
             this.zoomFactor = 1;
             this.hasDrawn = false;
@@ -69,15 +131,34 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
     }
 
     @Override
+    public void repaint()
+    {
+        super.repaint();
+        if (this.currentImage == null) return;
+
+
+        this.mode = EFitMode.withResize;
+        //this.imageViewLabel.setBorder(BorderFactory.createLineBorder(Color.red));
+        this.imageViewLabel.setIcon(new ImageIcon(this.getResizedImageToFit()));
+        this.hasDrawn = true;
+
+    }
+
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         if (this.currentImage == null) return;
 
-        this.mode = this.zoomFactor == 1 ? EFitMode.withResize : EFitMode.withScroll;
+        // System.out.println("Paint!");
 
-        BufferedImage resizedImage = this.getResizedImageToFit();
 
+        // this.mode = this.zoomFactor == 1 ? EFitMode.withResize : EFitMode.withScroll;
+        // this.mode = EFitMode.withResize;
+
+        // BufferedImage resizedImage = this.getResizedImageToFit();
+
+        /*
 
         g.drawImage(
                 resizedImage,
@@ -92,6 +173,10 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         }
 
         this.hasDrawn = true;
+        */
+
+        // this.imageViewLabel.setIcon(new ImageIcon(resizedImage));
+
 
     }
 
@@ -106,8 +191,8 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
             int imageHeight = this.currentImage.getHeight();
             double imageAspectRatio = (double) imageWidth / (double) imageHeight;
 
-            int panelWidth = this.parent.getFrame().getWidth();
-            int panelHeight = this.parent.getFrame().getHeight();
+            int panelWidth = Math.max(10, this.parent.getFrame().getWidth());
+            int panelHeight = Math.max(10, this.parent.getFrame().getHeight());
 
             System.out.println("Panel:");
             System.out.println(panelWidth);
@@ -158,6 +243,30 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
 
     @Override
     public Dimension getPreferredSize() {
+
+        return super.getPreferredSize();
+
+        /*
+        if (this.currentImage != null)
+        {
+            return new Dimension(
+                    (int) (zoomFactor * this.currentImage.getWidth()),
+                    (int) (zoomFactor * this.currentImage.getHeight())
+            );
+        }
+        else
+        {
+            return new Dimension(0, 0);
+        }
+
+         */
+
+
+        // return super.getPreferredSize();
+
+/*
+
+
         if (this.hasDrawn)
         {
             if (this.mode == EFitMode.withScroll)
@@ -176,5 +285,7 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         {
             return new Dimension(400, 400);
         }
+ */
+
     }
 }
