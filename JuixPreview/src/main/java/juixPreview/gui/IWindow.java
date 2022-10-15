@@ -1,12 +1,13 @@
 package juixPreview.gui;
 
+import juixPreview.file.FileManager;
+
 import javax.swing.*;
 
 public interface IWindow {
 
-    public void addComponent(IWindowComponent component);
-
     public JFrame getFrame();
     public WindowManager getParent();
+    public FileManager getFileManager();
 
 }
