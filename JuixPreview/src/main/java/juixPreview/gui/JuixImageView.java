@@ -24,7 +24,6 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
     private BufferedImage currentImage;
     private int zoomFactor;
     private EFitMode mode;
-    private boolean hasDrawn;
 
     private JLabel imageViewLabel;
     private JScrollPane imageViewScrollPane;
@@ -34,43 +33,38 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         // super(new GridBagLayout());
         this.parent = parent;
         this.zoomFactor = 1;
-        this.hasDrawn = false;
 
         this.setBackground(new Color(0, 0, 0));
         this.setLayout(new BorderLayout());
+
         this.imageViewLabel = new JLabel((ImageIcon) null, JLabel.CENTER);
         this.imageViewLabel.setBackground(new Color(0, 0, 0));
+        this.imageViewLabel.setMinimumSize(new Dimension(300, 200));
         this.imageViewLabel.setOpaque(true);
         this.imageViewLabel.setAutoscrolls(true);;
 
-
-        imageViewScrollPane = new JScrollPane(this.imageViewLabel);
-
-
-
-
-        imageViewScrollPane.setBackground(new Color(0, 0, 0));
+        this.imageViewScrollPane = new JScrollPane(this.imageViewLabel);
+        this.imageViewScrollPane.setBackground(new Color(0, 0, 0));
+        this.imageViewScrollPane.setBorder(BorderFactory.createEmptyBorder());
         this.add(imageViewScrollPane);
-
-
-
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
 
             private Point origin;
 
             @Override
-            public void mousePressed(MouseEvent e) {
-                origin = new Point(e.getPoint());
+            public void mousePressed(MouseEvent e)
+            {
+                this.origin = new Point(e.getPoint());
             }
 
             @Override
-            public void mouseReleased(MouseEvent e) {
-            }
+            public void mouseReleased(MouseEvent e) {}
 
             @Override
-            public void mouseDragged(MouseEvent e) {
-                if (origin != null) {
+            public void mouseDragged(MouseEvent e)
+            {
+                if (this.origin != null) {
                     JViewport viewPort = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, imageViewLabel);
                     if (viewPort != null) {
                         int deltaX = origin.x - e.getX();
@@ -89,23 +83,15 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         this.imageViewLabel.addMouseListener(mouseAdapter);
         this.imageViewLabel.addMouseMotionListener(mouseAdapter);
 
-        // this.setLocation(0, 0);
     }
 
     public void zoomIn() {
-        if (this.zoomFactor < 8)
-        {
-            this.zoomFactor = (int) Math.round(this.zoomFactor * 2.0);
-        }
+        if (this.zoomFactor < 8) this.zoomFactor = (int) Math.round(this.zoomFactor * 2.0);
         this.repaint();
     }
 
     public void zoomOut() {
-        if (this.zoomFactor > 1)
-        {
-            this.zoomFactor = (int) Math.round(this.zoomFactor / 2.0);
-        }
-
+        if (this.zoomFactor > 1) this.zoomFactor = (int) Math.round(this.zoomFactor / 2.0);
         this.repaint();
     }
 
@@ -123,25 +109,26 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
             this.imageViewLabel.setIcon(new ImageIcon(this.currentImage));
             this.mode = EFitMode.withResize;
             this.zoomFactor = 1;
-            this.hasDrawn = false;
-            this.repaint();
+            this.draw();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void draw()
+    {
+        if (this.currentImage == null) return;
+
+        this.mode = EFitMode.withResize;
+        //this.imageViewLabel.setBorder(BorderFactory.createLineBorder(Color.red));
+        this.imageViewLabel.setIcon(new ImageIcon(this.getResizedImageToFit()));
     }
 
     @Override
     public void repaint()
     {
         super.repaint();
-        if (this.currentImage == null) return;
-
-
-        this.mode = EFitMode.withResize;
-        //this.imageViewLabel.setBorder(BorderFactory.createLineBorder(Color.red));
-        this.imageViewLabel.setIcon(new ImageIcon(this.getResizedImageToFit()));
-        this.hasDrawn = true;
-
+        this.draw();
     }
 
     @Override
@@ -149,17 +136,12 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         super.paintComponent(g);
 
         if (this.currentImage == null) return;
-
-        // System.out.println("Paint!");
-
-
-        // this.mode = this.zoomFactor == 1 ? EFitMode.withResize : EFitMode.withScroll;
+         // this.mode = this.zoomFactor == 1 ? EFitMode.withResize : EFitMode.withScroll;
         // this.mode = EFitMode.withResize;
 
         // BufferedImage resizedImage = this.getResizedImageToFit();
 
         /*
-
         g.drawImage(
                 resizedImage,
                 Math.max(0, (this.getWidth() - resizedImage.getWidth())/2),
@@ -167,17 +149,10 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
                 this
         );
 
-
         if (this.getWidth() < resizedImage.getWidth() || this.getHeight() < resizedImage.getHeight()) {
             // this.setSize(new Dimension(resizedImage.getWidth(), resizedImage.getHeight())); // this.setSize(this.currentSize);
         }
-
-        this.hasDrawn = true;
         */
-
-        // this.imageViewLabel.setIcon(new ImageIcon(resizedImage));
-
-
     }
 
     private BufferedImage getResizedImageToFit()
@@ -185,14 +160,17 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         int resizeWidth = 0;
         int resizeHeight = 0;
 
+        System.out.println(this.parent.getFrame().getSize());
+        System.out.println(this.imageViewLabel.getSize());
+
         if (this.mode == EFitMode.withResize)
         {
             int imageWidth = this.currentImage.getWidth();
             int imageHeight = this.currentImage.getHeight();
             double imageAspectRatio = (double) imageWidth / (double) imageHeight;
 
-            int panelWidth = Math.max(10, this.parent.getFrame().getWidth());
-            int panelHeight = Math.max(10, this.parent.getFrame().getHeight());
+            int panelWidth = Math.max(10, this.getWidth());
+            int panelHeight = Math.max(10, this.getHeight());
 
             System.out.println("Panel:");
             System.out.println(panelWidth);
