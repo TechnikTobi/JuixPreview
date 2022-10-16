@@ -12,8 +12,6 @@ public class JuixPreview
 
     public static void main(String[] args)
     {
-        // System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
         SystemSetup.setup();
 
         JuixPreview.windowManager = new WindowManager();

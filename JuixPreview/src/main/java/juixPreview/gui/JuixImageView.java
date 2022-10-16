@@ -2,6 +2,7 @@ package juixPreview.gui;
 
 import juixPreview.observer.IMessage;
 import juixPreview.observer.IObserver;
+import net.coobird.thumbnailator.Thumbnails;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,27 +12,8 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.ByteArrayInputStream;
+
 import java.io.IOException;
-import java.nio.Buffer;
-import java.nio.IntBuffer;
-
-// import org.opencv.core.*;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.Pointer;
-import org.bytedeco.opencv.global.opencv_imgproc;
-import org.bytedeco.opencv.opencv_core.Mat;
-
-import org.bytedeco.opencv.opencv_core.Size;
-import org.opencv.core.CvType;
-import org.opencv.core.MatOfByte;
-import org.opencv.imgcodecs.Imgcodecs;
-//import org.bytedeco.opencv.
-
-// import org.opencv.imgproc.Imgproc;
-import org.bytedeco.opencv.opencv_imgproc.*;
-import org.opencv.imgproc.Imgproc;
 
 
 public class JuixImageView extends JPanel implements IWindowComponent, IObserver {
@@ -224,59 +206,18 @@ public class JuixImageView extends JPanel implements IWindowComponent, IObserver
         System.out.println(resizeWidth);
         System.out.println(resizeHeight);
 
+        return this.currentImage.getScaledInstance(resizeWidth, resizeHeight,  Image.SCALE_FAST);
+
         /*
-        Image temporaryImage = this.currentImage.getScaledInstance(
-                resizeWidth,
-                resizeHeight,
-                Image.SCALE_FAST // Image.SCALE_SMOOTH
-        );
-
-        BufferedImage returnValue = new BufferedImage(resizeWidth, resizeHeight, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D graphics2D2d = returnValue.createGraphics();
-        graphics2D2d.drawImage(temporaryImage, 0, 0, null);
-        graphics2D2d.dispose();
-        */
-        // return this.currentImage.getScaledInstance(resizeWidth, resizeHeight,  Image.SCALE_FAST);
-
-        assert(this.currentImage != null);
-
-        System.out.println("Dump:");
-        System.out.println(this.currentImage.getHeight());
-        System.out.println(this.currentImage.getWidth());
-        System.out.println(CvType.CV_8UC3);
-
-        //Mat matImg = new Mat(this.currentImage.getWidth(), this.currentImage.getHeight(), CvType.CV_8UC3);
-        byte[] pixels = ((DataBufferByte) this.currentImage.getRaster().getDataBuffer()).getData();
-        //matImg.put(0, 0, pixels);
-
-        IntBuffer testBuffer = IntBuffer.wrap(new int[]{this.currentImage.getWidth(), this.currentImage.getHeight()});
-
-        Mat testMat = new Mat(
-                2,
-                testBuffer,
-                CvType.CV_8UC3,
-                new BytePointer(pixels)
-        );
-
-
-        Mat resizeimage = new Mat();
-        Size sz = new Size(resizeWidth, resizeHeight);
-        opencv_imgproc.resize(testMat, resizeimage, sz);
-
-        System.out.println("huhu!");
-
-
-
-        try {
-            MatOfByte mob = new MatOfByte();
-            // Imgcodecs.imencode(".jpg", resizeimage, mob);
-            return ImageIO.read(new ByteArrayInputStream(mob.toArray()));
+        try
+        {
+            return Thumbnails.of(this.currentImage).size(resizeWidth, resizeHeight).asBufferedImage();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
 
+         */
     }
 
     @Override
