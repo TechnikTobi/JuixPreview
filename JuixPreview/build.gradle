@@ -18,6 +18,11 @@ repositories {
 }
 
 dependencies {
+    // implementation 'org.openpnp:opencv:4.5.5-1'
+    // implementation 'nu.pattern:opencv:2.4.9-4'
+    // implementation 'com.websitebeaver:opencv:4.5.5'
+    // implementation group: 'org.bytedeco', name: 'javacv-platform', version: '1.5.7'
+    implementation 'net.coobird:thumbnailator:0.4.17'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
@@ -29,11 +34,11 @@ test {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'main.Main'
+                'Main-Class': 'juixPreview.main.JuixPreview'
         )
     }
 }
 
 application {
-    mainClass = 'main.Main'
+    mainClass = 'juixPreview.main.JuixPreview'
 }
