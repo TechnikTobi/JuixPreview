@@ -26,3 +26,5 @@ JuixPreview/.idea/*
 
 *.DS_Store
 JuixPreview/build/*
+JuixPreview/JuixPreviewTest.app/*
+*.dmg
